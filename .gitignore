@@ -1,17 +1,9 @@
-*.class
 *.log
 *.bak
 
-# sbt specific
-.cache/
-.history/
-.lib/
-dist/*
-target
-lib_managed/
-src_managed/
-project/boot/
-project/plugins/project/
+# gradle specific
+.gradle
+build
 
 # Scala-IDE specific
 .scala_dependencies
