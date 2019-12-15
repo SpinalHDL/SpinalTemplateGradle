@@ -1,33 +1,38 @@
 Spinal Base Project
 ============
-This repository is a base SBT project added to help non Scala/SBT native people in their first steps.
+This repository is a base Gradle project added to help people that prefer Gradle over SBT getting started.
 
 Just one important note, you need a java JDK >= 8
 
-On debian : 
+## Quick start
+
+If you already have all the necessary tools installed, clone this repository and run Gradle:
 
 ```sh
-sudo add-apt-repository -y ppa:openjdk-r/ppa
-sudo apt-get update
-sudo apt-get install openjdk-8-jdk -y
+git clone https://github.com/SpinalHDL/SpinalTemplateSbt.git
+cd SpinalTemplateSbt
 
-#To set the default java
-sudo update-alternatives --config java
-sudo update-alternatives --config javac
+# If you want to generate the Verilog of your design
+./gradlew runVerilog
+
+# If you want to generate the VHDL of your design
+./gradlew runVhdl
+
+# If you want to run the scala written testbench
+./gradlew runSimulation
 ```
+
+You'll see the synthesized HDL code in the project's root directory. The simulation output will be written to `./simWorkspace`.
+
+The top level spinal code is defined in `./src/main/scala/mylib`.
 
 ## Basics, without any IDE
 
-You need to install SBT
+You don't really need to install Gradle. The executable in the project, `./gradlew` (or `./gradlew.bat`), will download and run the correct Gradle version for you.
 
-```sh
-echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
-sudo apt-get update
-sudo apt-get install sbt
-```
+If you want to run the scala written testbench, you have to be on linux and have Verilator installed (a recent version).
 
-If you want to run the scala written testbench, you have to be on linux and have Verilator installed (a recent version) :
+On Debian:
 
 ```sh
 sudo apt-get install git make autoconf g++ flex bison -y  # First time prerequisites
@@ -43,66 +48,35 @@ make -j$(nproc)
 sudo make install
 cd ..
 echo "DONE"
-
 ```
 
-Clone or download this repository.
+On Arch Linux:
 
 ```sh
-git clone https://github.com/SpinalHDL/SpinalTemplateSbt.git
+sudo pacman -S verilator
 ```
 
-Open a terminal in the root of it and run "sbt run". At the first execution, the process could take some seconds
+## Work in IntelliJ IDEA
 
-```sh
-cd SpinalTemplateSbt
+This project already contains the Gradle idea plugin. With the `idea` task (`./gradlew idea`), it will generate all files so that you can import this as project in in IntelliJ (`File` – `Open Project`, see [the documentation](https://docs.gradle.org/current/userguide/idea_plugin.html) for more details.
 
-//If you want to generate the Verilog of your design
-sbt "runMain mylib.MyTopLevelVerilog"
+## Work with Eclipse
 
-//If you want to generate the VHDL of your design
-sbt "runMain mylib.MyTopLevelVhdl"
+First, you need to add the [scala plugin](https://scala-ide.org/) to Eclipse (click on the link or simply search the Marketplace). 
 
-//If you want to run the scala written testbench
-sbt "runMain mylib.MyTopLevelSim"
+This project already contains the Gradle eclipse plugin. With the `eclipse` task (`./gradlew eclipse`), it will generate all files so that you can import this as an existing project in in Eclipse (`File` – `Import…` … `Existing Projects into Workspace`, see [the documentation](https://docs.gradle.org/current/userguide/eclipse_plugin.html) for more details.
+
+In Eclipse, there is also the possibility to install [Buildship, the Gradle plugin for Eclipse](https://projects.eclipse.org/projects/tools.buildship) (not to confuse with the Eclipse plugin for Gradle as above), that allows a more straightforward Gradle-Eclipse integration.
+
+## A word about main methods
+
+In SBT, you run the task `runMain MyClassName` to run the main method you want. One of the few downsides of Gradle is that it is built around the concept of having one main class per project. The solution to this is to define custom tasks, one for each main method to run, in the `build.gradle`:
+
+```Groovy
+task myRunTaskName(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = "mypackage.MyMainClassName"
+}
 ```
 
-The top level spinal code is defined into src\main\scala\mylib
-
-## Basics, with Intellij IDEA and its scala plugin
-
-You need to install :
-
-- Java JDK 8
-- SBT
-- Intellij IDEA (the free Community Edition is good enough)
-- Intellij IDEA Scala plugin (when you run Intellij IDEA the first time, he will ask you about it)
-
-And do the following :
-
-- Clone or download this repository.
-- In Intellij IDEA, "import project" with the root of this repository, Import project from external model SBT
-- In addition maybe you need to specify some path like JDK to Intellij
-- In the project (Intellij project GUI), go in src/main/scala/mylib/MyTopLevel.scala, right click on MyTopLevelVerilog, "Run MyTopLevelVerilog"
-
-Normally, this must generate an MyTopLevel.v output files.
-
-## Basics, with Eclipse and its scala plugin
-
-You need to install :
-
-- Java JDK
-- Scala
-- SBT
-- Eclipse (tested with Mars.2 - 4.5.2)
-- [scala plugin](http://scala-ide.org/) (tested with 4.4.1)
-
-And do the following :
-
-- Clone or download this repository.
-- Run ```sbt eclipse``` in the ```SpinalTemplateSbt``` directory.
-- Import the eclipse project from eclipse.
-- In the project (eclipse project GUI), right click on src/main/scala/mylib/MyTopLevel.scala, right click on MyTopLevelVerilog, and select run it
-
-Normally, this must generate output file ```MyTopLevel.v```.
-
+Then, type `./gradlew myRunTaskName` to run it.
