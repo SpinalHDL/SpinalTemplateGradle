@@ -19,6 +19,12 @@ bin/
 .settings
 .cache-main
 
+# IntelliJ
+.idea
+*.iws
+*.iml
+*.ipr
+
 #User
 /*.vhd
 /*.v
@@ -27,6 +33,6 @@ bin/
 *.vcd
 !tester/src/test/resources/*.vhd
 
-
+# SpinalHDL
 simWorkspace/
 tmp/
